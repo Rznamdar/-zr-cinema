@@ -1,7 +1,7 @@
 const $ = id => document.getElementById(id);
 let peer = null, conn = null, localStream = null, activeCall = null;
 let isHost = false, suppressSync = false, localObjectUrl = null, roomBusy = false;
-let targetRoomId = '', reconnectTimer = null, reconnectDelay = 2500, reconnecting = false;
+let roomPeerId = '', peerRecoveryTimer = null, guestRetryTimer = null, manualPeerClose = false, guestConnecting = false;
 const movie = $('movie');
 const embedPlayer = $('embedPlayer');
 
@@ -68,21 +68,6 @@ function handleData(d) {
   if (d.type === 'movie' && d.url) { $('movieUrl').value = d.url; loadMovieUrl(d.url, false); toast('فیلم طرف مقابل بارگذاری شد'); }
   if (d.type === 'chat') addMessage(d.text, false);
 }
-function scheduleRoomReconnect(delay = reconnectDelay) {
-  if (isHost || !targetRoomId || reconnectTimer || !peer || peer.destroyed || conn) return;
-  reconnectTimer = setTimeout(() => {
-    reconnectTimer = null;
-    if (document.visibilityState === 'hidden' || !peer || peer.destroyed || conn?.open || reconnecting) return;
-    reconnecting = true;
-    try {
-      if (peer.disconnected) peer.reconnect();
-      if (peer.open) attachConnection(peer.connect(targetRoomId, { reliable: true }));
-    } catch (e) { console.warn('Room reconnect attempt failed:', e); }
-    finally { reconnecting = false; }
-    reconnectDelay = Math.min(Math.round(reconnectDelay * 1.7), 20000);
-    if (!conn?.open) scheduleRoomReconnect(reconnectDelay);
-  }, delay);
-}
 function attachConnection(c) {
   if (conn && conn !== c) { try { conn.close(); } catch {} }
   conn = c; status('در حال برقراری ارتباط با اتاق...');
@@ -93,16 +78,70 @@ function attachConnection(c) {
     $('shareRow').classList.toggle('hidden', !isHost); toast('به اتاق وصل شدی ❤️');
   });
   c.on('data', handleData);
-  c.on('close', () => { clearTimeout(timeout); if (conn === c) conn = null; setConnected(false); status(isHost ? 'اتصال مهمان قطع شد؛ اتاق باز است و منتظر ورود دوباره است.' : 'ارتباط قطع شد؛ در حال تلاش برای ورود دوباره به اتاق...'); if (!isHost) scheduleRoomReconnect(1200); });
-  c.on('error', e => { clearTimeout(timeout); console.error('Data connection error:', e); if (conn === c) conn = null; setConnected(false); status('خطای اتصال: ' + (e?.type || e?.message || 'ارتباط ناموفق')); if (!isHost) scheduleRoomReconnect(1500); });
+  c.on('close', () => {
+    clearTimeout(timeout); if (conn === c) conn = null;
+    setConnected(false); status('ارتباط اتاق قطع شد؛ در حال تلاش برای اتصال دوباره...');
+    if (!isHost && roomPeerId && !manualPeerClose) scheduleGuestReconnect();
+  });
+  c.on('error', e => { clearTimeout(timeout); console.error('Data connection error:', e); setConnected(false); status('خطای اتصال: ' + (e?.type || e?.message || 'ارتباط ناموفق')) });
 }
+function scheduleGuestReconnect() {
+  if (isHost || !roomPeerId || manualPeerClose || guestRetryTimer || guestConnecting || conn?.open) return;
+  guestRetryTimer = setTimeout(() => {
+    guestRetryTimer = null;
+    if (isHost || manualPeerClose || conn?.open) return;
+    if (!peer || peer.destroyed) return;
+    if (peer.disconnected) {
+      try { peer.reconnect(); } catch (e) { console.warn('Signaling reconnect:', e); }
+      scheduleGuestReconnect();
+      return;
+    }
+    if (peer.open) {
+      guestConnecting = true;
+      try {
+        const next = peer.connect(roomPeerId, { reliable: true });
+        attachConnection(next);
+        next.on('open', () => { guestConnecting = false; });
+        next.on('error', () => { guestConnecting = false; scheduleGuestReconnect(); });
+      } catch (e) { guestConnecting = false; scheduleGuestReconnect(); }
+    } else scheduleGuestReconnect();
+  }, guestConnecting ? 5000 : 2500);
+}
+function schedulePeerRecovery() {
+  if (manualPeerClose || !peer || peer.destroyed || peerRecoveryTimer) return;
+  peerRecoveryTimer = setTimeout(() => {
+    peerRecoveryTimer = null;
+    if (manualPeerClose || !peer || peer.destroyed) return;
+    if (peer.disconnected) {
+      try { peer.reconnect(); } catch (e) { console.warn('Peer reconnect:', e); }
+      schedulePeerRecovery();
+    }
+  }, 4000);
+}
+function onPageResume() {
+  if (!peer || peer.destroyed || manualPeerClose) return;
+  if (peer.disconnected) {
+    status('برگشتی؛ در حال وصل‌کردن دوباره سرور هماهنگی...');
+    try { peer.reconnect(); } catch (e) { console.warn('Resume reconnect:', e); }
+    schedulePeerRecovery();
+  } else if (!isHost && roomPeerId && !conn?.open) scheduleGuestReconnect();
+}
+window.addEventListener('online', onPageResume);
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') onPageResume(); });
+window.addEventListener('pageshow', onPageResume);
+
 function destroyPeer() {
+  manualPeerClose = true;
+  clearTimeout(peerRecoveryTimer); peerRecoveryTimer = null;
+  clearTimeout(guestRetryTimer); guestRetryTimer = null; guestConnecting = false;
+  roomPeerId = '';
   if (activeCall) { try { activeCall.close(); } catch {} activeCall = null; }
   if (conn) { try { conn.close(); } catch {} conn = null; }
   if (peer) { try { peer.destroy(); } catch {} peer = null; }
   setConnected(false);
 }
 function createPeer() {
+  manualPeerClose = false;
   return new Promise((resolve, reject) => {
     if (!window.Peer) return reject(new Error('کتابخانه PeerJS بارگذاری نشده؛ صفحه را تازه‌سازی کنید.'));
     peer = new Peer(undefined, {
@@ -120,7 +159,9 @@ function createPeer() {
     const timer = setTimeout(() => { if (!settled) { settled = true; reject(new Error('مهلت اتصال به سرور اتاق تمام شد. VPN یا اینترنت را بررسی کنید.')); } }, 18000);
     peer.on('open', id => {
       $('connectionLabel').textContent = 'آماده اتصال';
+      clearTimeout(peerRecoveryTimer); peerRecoveryTimer = null;
       if (!settled) { settled = true; clearTimeout(timer); resolve(id); }
+      if (!isHost && roomPeerId && !conn?.open) scheduleGuestReconnect();
     });
     peer.on('connection', c => { if (isHost) attachConnection(c); });
     peer.on('call', async call => {
@@ -130,11 +171,10 @@ function createPeer() {
       } catch (e) { console.error('Incoming call media error:', e); call.answer(); toast('برای تماس، مجوز میکروفون/دوربین لازم است.'); }
     });
     peer.on('disconnected', () => {
-      if (conn) { try { conn.close(); } catch {} conn = null; }
       $('connectionLabel').textContent = 'در حال بازیابی';
-      status('ارتباط با سرور هماهنگی قطع شد؛ در حال تلاش برای بازیابی...');
+      status('ارتباط با سرور هماهنگی قطع شد؛ اتصال مجدد خودکار در حال انجام است...');
       try { peer.reconnect(); } catch (e) { console.error('Peer reconnect failed:', e); }
-      if (!isHost && targetRoomId) scheduleRoomReconnect(1800);
+      schedulePeerRecovery();
     });
     peer.on('error', e => {
       console.error('Peer error:', e);
@@ -148,9 +188,9 @@ function createPeer() {
 $('createRoom').onclick = async () => {
   if (roomBusy) return; roomBusy = true;
   try {
-    if (reconnectTimer) { clearTimeout(reconnectTimer); reconnectTimer = null; } targetRoomId = ''; reconnectDelay = 2500;
     destroyPeer(); isHost = true; status('در حال ساخت اتاق و اتصال به سرور...');
     const id = await createPeer();
+    roomPeerId = id;
     $('myRoomCode').textContent = id; $('roomId').value = id; $('shareRow').classList.remove('hidden');
     status('اتاق آماده است. همین کد را برای زهرا بفرست و صفحه را باز نگه دار.');
   } catch (e) { console.error(e); status(e.message || 'ساخت اتاق ناموفق بود؛ اینترنت را بررسی کنید.'); }
@@ -160,9 +200,8 @@ $('joinRoom').onclick = async () => {
   if (roomBusy) return; const id = $('roomId').value.trim();
   if (!id) return toast('کد اتاق را وارد کن'); roomBusy = true;
   try {
-    if (reconnectTimer) { clearTimeout(reconnectTimer); reconnectTimer = null; } targetRoomId = ''; reconnectDelay = 2500;
-    destroyPeer(); isHost = false; status('در حال اتصال به سرور و ورود به اتاق...');
-    await createPeer(); targetRoomId = id; attachConnection(peer.connect(id, { reliable: true }));
+    destroyPeer(); isHost = false; roomPeerId = id; status('در حال اتصال به سرور و ورود به اتاق...');
+    await createPeer(); attachConnection(peer.connect(id, { reliable: true }));
   } catch (e) { console.error(e); status(e.message || 'ورود به اتاق ناموفق بود.'); }
   finally { roomBusy = false; }
 };
@@ -215,16 +254,4 @@ $('toggleMic').onclick = () => { const t = localStream?.getAudioTracks()[0]; if 
 $('toggleCamera').onclick = () => { const t = localStream?.getVideoTracks()[0]; if (t) { t.enabled = !t.enabled; $('toggleCamera').textContent = t.enabled ? '📷 خاموش کردن دوربین' : '📷 روشن کردن دوربین'; } };
 $('endCall').onclick = () => { if (activeCall) activeCall.close(); clearCallUI(); };
 $('themeInfo').onclick = () => $('infoDialog').showModal(); $('closeInfo').onclick = () => $('infoDialog').close();
-// iOS Safari may suspend the page while the user switches to Messages. Recover on return.
-function recoverRoomConnection() {
-  if (!peer || peer.destroyed) return;
-  if (peer.disconnected) {
-    status('در حال بازیابی ارتباط با سرور هماهنگی...');
-    try { peer.reconnect(); } catch (e) { console.warn('Peer reconnect failed:', e); }
-  }
-  if (!isHost && targetRoomId && !conn?.open) scheduleRoomReconnect(900);
-}
-document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') recoverRoomConnection(); });
-window.addEventListener('pageshow', recoverRoomConnection);
-window.addEventListener('online', recoverRoomConnection);
-window.addEventListener('beforeunload', () => { if (reconnectTimer) clearTimeout(reconnectTimer); destroyPeer(); if (localObjectUrl) URL.revokeObjectURL(localObjectUrl); });
+window.addEventListener('beforeunload', () => { destroyPeer(); if (localObjectUrl) URL.revokeObjectURL(localObjectUrl); });
