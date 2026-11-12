@@ -26,9 +26,9 @@
     <div class="main-column">
       <div class="player-card">
         <div class="player-top"><div><span class="kicker">NOW SHOWING</span><h2>پرده نمایش</h2></div><span class="screen-label">Z&R SCREEN</span></div>
-        <div class="screen-wrap"><video id="movie" controls playsinline></video><div class="empty-screen" id="emptyScreen"><div class="play-emblem">▶</div><strong>فیلم امشب رو انتخاب کنید</strong><span>یک لینک مستقیم یا فایل ویدئویی وارد کنید</span></div></div>
+        <div class="screen-wrap"><video id="movie" controls playsinline></video><iframe id="embedPlayer" title="پخش‌کننده ویدئو" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe><div class="empty-screen" id="emptyScreen"><div class="play-emblem">▶</div><strong>فیلم امشب رو انتخاب کنید</strong><span>لینک مستقیم، لینک آپارات یا فایل ویدئویی وارد کنید</span></div></div>
         <div class="source-tabs"><button class="tab active" data-tab="link">لینک فیلم</button><button class="tab" data-tab="file">فایل از گوشی</button></div>
-        <div class="source-panel" id="linkPanel"><div class="url-row"><input id="movieUrl" type="url" placeholder="لینک مستقیم MP4 / WebM یا لینک قابل‌نمایش"><button class="gold-btn compact" id="loadUrl">بارگذاری</button></div><p class="hint">لینک مستقیم فایل ویدئویی بهترین سازگاری را دارد. بعضی سایت‌ها اجازه پخش داخل سایت دیگر را نمی‌دهند.</p></div>
+        <div class="source-panel" id="linkPanel"><div class="url-row"><input id="movieUrl" type="url" placeholder="لینک مستقیم MP4/WebM، آپارات یا لینک Embed"><button class="gold-btn compact" id="loadUrl">بارگذاری</button></div><p class="hint">لینک آپارات و لینک‌های Embed را هم امتحان کنید. بعضی سایت‌ها نمایش داخل سایت دیگر را مسدود می‌کنند؛ در این حالت فقط لینک مستقیم ویدئو جواب می‌دهد. همگام‌سازی زمان پخش برای پلیرهای خارجی تضمین‌شده نیست.</p></div>
         <div class="source-panel hidden" id="filePanel"><label class="upload-zone" for="movieFile"><span>＋</span><b>انتخاب فایل فیلم از گوشی</b><small>MP4 و WebM پیشنهاد می‌شوند</small><input id="movieFile" type="file" accept="video/*"></label><p class="hint">برای همگام‌سازی، هر دو نفر باید همان فایل را روی دستگاه خود انتخاب کنند. فایل به سرور آپلود نمی‌شود.</p></div>
         <div class="player-foot"><span id="movieStatus">هنوز فیلمی انتخاب نشده</span><span>SYNC <b id="syncState">OFF</b></span></div>
       </div>
@@ -55,6 +55,6 @@
   <footer><span>Z&R CINEMA</span><span>MADE FOR TWO ♥</span></footer>
 </main>
 <div class="toast" id="toast"></div>
-<dialog id="infoDialog"><div class="dialog-inner"><button class="close-dialog" id="closeInfo">×</button><h3>درباره Z&R Cinema</h3><p>این نسخه اولیه شامل اتاق خصوصی، همگام‌سازی پخش، چت زنده و تماس صوتی/تصویری همتا‌به‌همتاست. برای استفاده از دو دستگاه باید روی میزبان HTTPS منتشر شود.</p><p>پخش سایت‌های فیلم به سیاست همان سایت وابسته است؛ لینک مستقیم ویدئو قابل‌اعتمادتر است.</p></div></dialog>
+<dialog id="infoDialog"><div class="dialog-inner"><button class="close-dialog" id="closeInfo">×</button><h3>درباره Z&R Cinema</h3><p>این نسخه شامل اتاق، چت زنده، همگام‌سازی ویدئوی مستقیم و تماس همتا‌به‌همتاست. لینک آپارات و Embed در صورت اجازه سایت منبع نمایش داده می‌شود. برای استفاده از دو دستگاه، HTTPS لازم است.</p><p>پخش سایت‌های فیلم به سیاست همان سایت وابسته است؛ لینک مستقیم ویدئو قابل‌اعتمادتر است.</p></div></dialog>
 <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script><script src="app.js"></script>
 </body></html>
