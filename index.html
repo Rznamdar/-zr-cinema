@@ -27,18 +27,20 @@
       <div class="player-card">
         <div class="player-top"><div><span class="kicker">NOW SHOWING</span><h2>پرده نمایش</h2></div><span class="screen-label">Z&R SCREEN</span></div>
         <div class="screen-wrap"><video id="movie" controls playsinline></video><iframe id="embedPlayer" title="پخش‌کننده ویدئو" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe><div class="empty-screen" id="emptyScreen"><div class="play-emblem">▶</div><strong>فیلم امشب رو انتخاب کنید</strong><span>لینک مستقیم، لینک آپارات یا فایل ویدئویی وارد کنید</span></div></div>
-        <div class="source-tabs"><button class="tab active" data-tab="link">لینک فیلم</button><button class="tab" data-tab="file">فایل از گوشی</button></div>
-        <div class="source-panel" id="linkPanel"><div class="url-row"><input id="movieUrl" type="url" placeholder="لینک مستقیم MP4/WebM، آپارات یا لینک Embed"><button class="gold-btn compact" id="loadUrl">بارگذاری</button></div><p class="hint">لینک آپارات و لینک‌های Embed را هم امتحان کنید. بعضی سایت‌ها نمایش داخل سایت دیگر را مسدود می‌کنند؛ در این حالت فقط لینک مستقیم ویدئو جواب می‌دهد. همگام‌سازی زمان پخش برای پلیرهای خارجی تضمین‌شده نیست.</p></div>
-        <div class="source-panel hidden" id="filePanel"><label class="upload-zone" for="movieFile"><span>＋</span><b>انتخاب فایل فیلم از گوشی</b><small>MP4 و WebM پیشنهاد می‌شوند</small><input id="movieFile" type="file" accept="video/*"></label><p class="hint">برای همگام‌سازی، هر دو نفر باید همان فایل را روی دستگاه خود انتخاب کنند. فایل به سرور آپلود نمی‌شود.</p></div>
-        <div class="player-foot"><span id="movieStatus">هنوز فیلمی انتخاب نشده</span><span>SYNC <b id="syncState">OFF</b></span></div>
-      </div>
-
       <section class="chat-card">
         <div class="chat-head"><div><span class="kicker">JUST YOU TWO</span><h2>گفت‌وگوی دونفره</h2></div><span class="chat-live"><i></i> چت اتاق</span></div>
         <div class="messages" id="messages" aria-live="polite"><div class="chat-empty" id="chatEmpty"><span>✦</span><b>چت دونفره شما</b><small>وقتی هر دو وارد اتاق شوید، اینجا پیام بدهید.</small></div></div>
         <form class="message-form" id="messageForm"><input id="messageInput" maxlength="500" autocomplete="off" placeholder="برای زهرا یه چیزی بنویس..."><button class="send-btn" type="submit" aria-label="ارسال پیام">➤</button></form>
         <div class="chat-foot">پیام‌ها فقط در طول همین نشست نگهداری می‌شوند.</div>
       </section>
+
+        <div class="source-tabs"><button class="tab active" data-tab="link">لینک فیلم</button><button class="tab" data-tab="file">فایل از گوشی</button></div>
+        <div class="source-panel" id="linkPanel"><div class="url-row"><input id="movieUrl" type="url" placeholder="لینک مستقیم MP4/WebM، آپارات یا لینک Embed"><button class="gold-btn compact" id="loadUrl">بارگذاری</button></div><p class="hint">لینک آپارات و لینک‌های Embed را هم امتحان کنید. بعضی سایت‌ها نمایش داخل سایت دیگر را مسدود می‌کنند؛ در این حالت فقط لینک مستقیم ویدئو جواب می‌دهد. همگام‌سازی زمان پخش برای پلیرهای خارجی تضمین‌شده نیست.</p></div>
+        <div class="source-panel hidden" id="filePanel"><label class="upload-zone" for="movieFile"><span>＋</span><b>انتخاب فایل فیلم از گوشی</b><small>MP4 و WebM پیشنهاد می‌شوند</small><input id="movieFile" type="file" accept="video/*"></label><p class="hint">برای همگام‌سازی، هر دو نفر باید همان فایل را روی دستگاه خود انتخاب کنند. فایل به سرور آپلود نمی‌شود.</p></div>
+        <div class="player-foot"><span id="movieStatus">هنوز فیلمی انتخاب نشده</span><span>SYNC <b id="syncState">OFF</b></span></div>
+      </div>
+
+
     </div>
 
     <aside class="side-column">

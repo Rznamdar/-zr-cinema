@@ -10,7 +10,7 @@ function toast(msg) {
 }
 function status(msg) { $('roomStatus').textContent = msg; }
 function setConnected(ok) {
-  $('connectionLabel').textContent = ok ? 'متصل' : 'آفلاین';
+  $('connectionLabel').textContent = ok ? 'متصل' : (peer?.open ? 'آماده اتصال' : 'آفلاین');
   $('syncState').textContent = ok ? 'ON' : 'OFF';
   $('syncState').style.color = ok ? '#e2c47f' : '';
 }
@@ -89,13 +89,23 @@ function destroyPeer() {
 function createPeer() {
   return new Promise((resolve, reject) => {
     if (!window.Peer) return reject(new Error('کتابخانه PeerJS بارگذاری نشده؛ صفحه را تازه‌سازی کنید.'));
-    peer = new Peer(undefined, { debug: 1, config: { iceServers: [
-      { urls: 'stun:stun.l.google.com:19302' },
-      { urls: 'stun:stun1.l.google.com:19302' }
-    ] } });
+    peer = new Peer(undefined, {
+      debug: 1,
+      // Public STUN + TURN fallback helps devices behind restrictive NAT/mobile networks.
+      config: { iceServers: [
+        { urls: 'stun:stun.l.google.com:19302' },
+        { urls: 'stun:stun1.l.google.com:19302' },
+        { urls: 'turn:openrelay.metered.ca:80', username: 'openrelayproject', credential: 'openrelayproject' },
+        { urls: 'turn:openrelay.metered.ca:443', username: 'openrelayproject', credential: 'openrelayproject' },
+        { urls: 'turn:openrelay.metered.ca:443?transport=tcp', username: 'openrelayproject', credential: 'openrelayproject' }
+      ] }
+    });
     let settled = false;
     const timer = setTimeout(() => { if (!settled) { settled = true; reject(new Error('مهلت اتصال به سرور اتاق تمام شد. VPN یا اینترنت را بررسی کنید.')); } }, 18000);
-    peer.on('open', id => { if (!settled) { settled = true; clearTimeout(timer); resolve(id); } });
+    peer.on('open', id => {
+      $('connectionLabel').textContent = 'آماده اتصال';
+      if (!settled) { settled = true; clearTimeout(timer); resolve(id); }
+    });
     peer.on('connection', c => { if (isHost) attachConnection(c); });
     peer.on('call', async call => {
       try {
@@ -103,9 +113,14 @@ function createPeer() {
         localStream = stream; call.answer(stream); activeCall = call; setupCall(call, true);
       } catch (e) { console.error('Incoming call media error:', e); call.answer(); toast('برای تماس، مجوز میکروفون/دوربین لازم است.'); }
     });
-    peer.on('disconnected', () => { setConnected(false); status('ارتباط با سرور اتاق قطع شد؛ در حال تلاش برای بازیابی...'); peer.reconnect(); });
+    peer.on('disconnected', () => {
+      $('connectionLabel').textContent = 'در حال بازیابی';
+      status('ارتباط با سرور هماهنگی قطع شد؛ در حال تلاش برای بازیابی...');
+      try { peer.reconnect(); } catch (e) { console.error('Peer reconnect failed:', e); }
+    });
     peer.on('error', e => {
       console.error('Peer error:', e);
+      if (e.type === 'peer-unavailable') { setConnected(false); status('این کد اتاق پیدا نشد؛ میزبان باید اول اتاق را بسازد و صفحه‌اش را باز نگه دارد.'); }
       const messages = { 'peer-unavailable': 'اتاق پیدا نشد یا میزبان آنلاین نیست.', 'network': 'ارتباط شبکه با سرور اتاق برقرار نشد.', 'server-error': 'سرور اتاق موقتاً پاسخ نمی‌دهد.', 'unavailable-id': 'این شناسه در دسترس نیست؛ یک اتاق تازه بسازید.' };
       status(messages[e.type] || ('خطای سرور اتاق: ' + (e.type || e.message || 'نامشخص')));
       if (!settled) { settled = true; clearTimeout(timer); reject(e); }
