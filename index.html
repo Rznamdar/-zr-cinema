@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#090909"><title>Z&R Cinema</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="ambient"></div>
+<header class="topbar">
+  <a class="brand" href="#"><span class="brand-mark">Z<span>&</span>R</span><span class="brand-name">CINEMA<small>PRIVATE WATCH ROOM</small></span></a>
+  <div class="top-actions"><span class="live-dot"></span><span id="connectionLabel">آفلاین</span><button class="icon-btn" id="themeInfo" title="درباره پروژه">ⓘ</button></div>
+</header>
+<main class="shell">
+  <section class="hero"><div class="eyebrow"><span></span> PRIVATE CINEMA EXPERIENCE</div><h1>سینمای دونفره‌<em> شما</em></h1><p>فاصله مهم نیست؛ امشب فیلم رو با هم ببینید.</p></section>
+  <section class="room-card">
+    <div class="section-head"><div><span class="kicker">YOUR PRIVATE SPACE</span><h2>ورود به اتاق سینما</h2></div><span class="lock">✦ PRIVATE</span></div>
+    <div class="room-actions"><button class="gold-btn" id="createRoom">ساخت اتاق جدید <span>＋</span></button><div class="join-box"><input id="roomId" placeholder="کد اتاق زهرا را وارد کن" autocomplete="off"><button class="outline-btn" id="joinRoom">ورود به اتاق</button></div></div>
+    <div class="room-status" id="roomStatus">برای شروع، اتاق بساز یا کد اتاق طرف مقابل را وارد کن.</div>
+    <div class="share-row hidden" id="shareRow"><div><small>کد اختصاصی اتاق</small><strong id="myRoomCode">—</strong></div><button class="copy-btn" id="copyCode">کپی کد</button></div>
+  </section>
+
+  <section class="cinema-grid">
+    <div class="main-column">
+      <div class="player-card">
+        <div class="player-top"><div><span class="kicker">NOW SHOWING</span><h2>پرده نمایش</h2></div><span class="screen-label">Z&R SCREEN</span></div>
+        <div class="screen-wrap"><video id="movie" controls playsinline></video><div class="empty-screen" id="emptyScreen"><div class="play-emblem">▶</div><strong>فیلم امشب رو انتخاب کنید</strong><span>یک لینک مستقیم یا فایل ویدئویی وارد کنید</span></div></div>
+        <div class="source-tabs"><button class="tab active" data-tab="link">لینک فیلم</button><button class="tab" data-tab="file">فایل از گوشی</button></div>
+        <div class="source-panel" id="linkPanel"><div class="url-row"><input id="movieUrl" type="url" placeholder="لینک مستقیم MP4 / WebM یا لینک قابل‌نمایش"><button class="gold-btn compact" id="loadUrl">بارگذاری</button></div><p class="hint">لینک مستقیم فایل ویدئویی بهترین سازگاری را دارد. بعضی سایت‌ها اجازه پخش داخل سایت دیگر را نمی‌دهند.</p></div>
+        <div class="source-panel hidden" id="filePanel"><label class="upload-zone" for="movieFile"><span>＋</span><b>انتخاب فایل فیلم از گوشی</b><small>MP4 و WebM پیشنهاد می‌شوند</small><input id="movieFile" type="file" accept="video/*"></label><p class="hint">برای همگام‌سازی، هر دو نفر باید همان فایل را روی دستگاه خود انتخاب کنند. فایل به سرور آپلود نمی‌شود.</p></div>
+        <div class="player-foot"><span id="movieStatus">هنوز فیلمی انتخاب نشده</span><span>SYNC <b id="syncState">OFF</b></span></div>
+      </div>
+
+      <section class="chat-card">
+        <div class="chat-head"><div><span class="kicker">JUST YOU TWO</span><h2>گفت‌وگوی دونفره</h2></div><span class="chat-live"><i></i> چت اتاق</span></div>
+        <div class="messages" id="messages" aria-live="polite"><div class="chat-empty" id="chatEmpty"><span>✦</span><b>چت دونفره شما</b><small>وقتی هر دو وارد اتاق شوید، اینجا پیام بدهید.</small></div></div>
+        <form class="message-form" id="messageForm"><input id="messageInput" maxlength="500" autocomplete="off" placeholder="برای زهرا یه چیزی بنویس..."><button class="send-btn" type="submit" aria-label="ارسال پیام">➤</button></form>
+        <div class="chat-foot">پیام‌ها فقط در طول همین نشست نگهداری می‌شوند.</div>
+      </section>
+    </div>
+
+    <aside class="side-column">
+      <div class="call-card">
+        <div class="section-head"><div><span class="kicker">STAY TOGETHER</span><h2>تماس دونفره</h2></div><span class="call-icon">◉</span></div>
+        <div class="video-grid"><div class="video-tile"><video id="localVideo" autoplay muted playsinline></video><span>شما</span></div><div class="video-tile"><video id="remoteVideo" autoplay playsinline></video><span>زهرا</span></div></div>
+        <div class="call-buttons"><button class="outline-btn" id="startAudio">تماس صوتی</button><button class="gold-btn compact" id="startVideo">تماس تصویری</button></div>
+        <div class="call-controls"><button class="mini-control" id="toggleMic" disabled>🎙 قطع میکروفون</button><button class="mini-control" id="toggleCamera" disabled>📷 خاموش کردن دوربین</button><button class="end-btn" id="endCall" disabled>پایان تماس</button></div>
+        <p class="hint">برای تماس، اجازه میکروفون یا دوربین را بدهید. سایت باید با HTTPS باز شود.</p>
+      </div>
+      <div class="note-card"><span class="note-star">✦</span><div><b>یک شب، یک فیلم، دو نفر</b><p>این فضای کوچیک فقط برای شما دوتاست.</p></div></div>
+    </aside>
+  </section>
+  <footer><span>Z&R CINEMA</span><span>MADE FOR TWO ♥</span></footer>
+</main>
+<div class="toast" id="toast"></div>
+<dialog id="infoDialog"><div class="dialog-inner"><button class="close-dialog" id="closeInfo">×</button><h3>درباره Z&R Cinema</h3><p>این نسخه اولیه شامل اتاق خصوصی، همگام‌سازی پخش، چت زنده و تماس صوتی/تصویری همتا‌به‌همتاست. برای استفاده از دو دستگاه باید روی میزبان HTTPS منتشر شود.</p><p>پخش سایت‌های فیلم به سیاست همان سایت وابسته است؛ لینک مستقیم ویدئو قابل‌اعتمادتر است.</p></div></dialog>
+<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script><script src="app.js"></script>
+</body></html>
