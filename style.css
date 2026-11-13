@@ -230,3 +230,32 @@ body>*:not(.ambient){position:relative;z-index:1}
  background:linear-gradient(180deg,#05050545,#05050528 48%,#0303039c)!important;
 }
 .player-card>.chat-card #chatMovieCanvas{opacity:.94!important}
+
+
+/* Simple matte blurred chat backdrop */
+.player-card>.chat-card{
+  background:rgba(15,15,15,.94)!important;
+  border-color:#29251e!important;
+  backdrop-filter:blur(22px)!important;
+  -webkit-backdrop-filter:blur(22px)!important;
+}
+.player-card>.chat-card::before{
+  inset:-24px!important;
+  z-index:0!important;
+  opacity:.42!important;
+  filter:blur(34px)!important;
+  transform:none!important;
+  animation:none!important;
+  background:linear-gradient(145deg,#29251f,#171717 48%,#24211c)!important;
+}
+.player-card>.chat-card::after{
+  z-index:1!important;
+  animation:none!important;
+  background:rgba(5,5,5,.48)!important;
+}
+.player-card>.chat-card #chatMovieCanvas{display:none!important}
+.player-card>.chat-card .chat-head,
+.player-card>.chat-card .messages,
+.player-card>.chat-card .message-form,
+.player-card>.chat-card .chat-foot{z-index:3!important}
+.player-card>.chat-card .messages{background:transparent!important}
