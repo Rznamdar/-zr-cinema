@@ -200,3 +200,19 @@ body>*:not(.ambient){position:relative;z-index:1}
  0%{background-position:140% 0,0 0}
  100%{background-position:-140% 0,0 0}
 }
+
+
+/* Actual live movie frame layer inside the chat */
+.player-card>.chat-card{position:relative;isolation:isolate;overflow:hidden}
+#chatMovieCanvas{
+ position:absolute;inset:0;width:100%;height:100%;
+ display:block;object-fit:cover;z-index:0;opacity:.88;
+ filter:saturate(1.12) contrast(1.04);
+ pointer-events:none;
+}
+.player-card>.chat-card::before{z-index:-1}
+.player-card>.chat-card::after{z-index:0}
+.player-card>.chat-card .chat-head,
+.player-card>.chat-card .messages,
+.player-card>.chat-card .message-form,
+.player-card>.chat-card .chat-foot{position:relative;z-index:1}
