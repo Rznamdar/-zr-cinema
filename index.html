@@ -5,7 +5,7 @@
 <meta name="theme-color" content="#090909"><title>Z&R Cinema</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=20261113-3">
+<link rel="stylesheet" href="style.css?v=20261113-4">
 </head>
 <body>
 <div class="ambient"></div>
@@ -28,6 +28,7 @@
         <div class="player-top"><div><span class="kicker">NOW SHOWING</span><h2>پرده نمایش</h2></div><span class="screen-label">Z&R SCREEN</span></div>
         <div class="screen-wrap"><video id="movie" controls playsinline></video><iframe id="embedPlayer" title="پخش‌کننده ویدئو" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe><div class="empty-screen" id="emptyScreen"><div class="play-emblem">▶</div><strong>فیلم امشب رو انتخاب کنید</strong><span>لینک مستقیم، لینک آپارات یا فایل ویدئویی وارد کنید</span></div></div>
       <section class="chat-card">
+        <canvas id="chatMovieCanvas" aria-hidden="true"></canvas>
         <div class="chat-head"><div><span class="kicker">JUST YOU TWO</span><h2>گفت‌وگوی دونفره</h2></div><span class="chat-live"><i></i> چت اتاق</span></div>
         <div class="messages" id="messages" aria-live="polite"><div class="chat-empty" id="chatEmpty"><span>✦</span><b>چت دونفره شما</b><small>وقتی هر دو وارد اتاق شوید، اینجا پیام بدهید.</small></div></div>
         <form class="message-form" id="messageForm"><input id="messageInput" maxlength="500" autocomplete="off" placeholder="برای زهرا یه چیزی بنویس..."><button class="send-btn" type="submit" aria-label="ارسال پیام">➤</button></form>
