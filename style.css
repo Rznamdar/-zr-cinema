@@ -128,3 +128,39 @@ body>*:not(.ambient){position:relative;z-index:1}
 .player-card>.chat-card .send-btn{
  box-shadow:0 3px 15px #c39b4a44;
 }
+
+
+/* Animated Rave-style moving cinematic light behind chat */
+.player-card>.chat-card::before{
+ inset:-70px;
+ opacity:.9;
+ filter:blur(30px) saturate(1.15);
+ background:
+  radial-gradient(ellipse at 12% 28%,#d46a4f 0 8%,transparent 30%),
+  radial-gradient(ellipse at 78% 18%,#4d8db5 0 10%,transparent 32%),
+  radial-gradient(ellipse at 55% 72%,#d0a04c 0 9%,transparent 30%),
+  radial-gradient(ellipse at 88% 82%,#8863b5 0 10%,transparent 32%),
+  radial-gradient(ellipse at 18% 82%,#4a9a83 0 9%,transparent 30%),
+  linear-gradient(125deg,#17212a,#60412c 48%,#17121f);
+ background-size:160% 160%;
+ animation:zrChatColorDrift 13s ease-in-out infinite alternate;
+}
+.player-card>.chat-card::after{
+ background:
+  linear-gradient(112deg,transparent 20%,#ffffff08 38%,#e8c47735 48%,#ffffff08 55%,transparent 72%),
+  linear-gradient(180deg,#05050570,#05050535 48%,#030303a8);
+ background-size:220% 100%,100% 100%;
+ animation:zrChatLightSweep 9s ease-in-out infinite;
+}
+@keyframes zrChatColorDrift{
+ 0%{background-position:0% 15%;transform:scale(1.04) translate3d(-2%,0,0)}
+ 50%{background-position:100% 55%;transform:scale(1.12) translate3d(2%,1%,0)}
+ 100%{background-position:20% 100%;transform:scale(1.06) translate3d(-1%,-1%,0)}
+}
+@keyframes zrChatLightSweep{
+ 0%{background-position:130% 0,0 0}
+ 100%{background-position:-130% 0,0 0}
+}
+@media(prefers-reduced-motion:reduce){
+ .player-card>.chat-card::before,.player-card>.chat-card::after{animation:none}
+}
