@@ -84,3 +84,40 @@ $('toggleCamera').onclick=()=>{const t=localStream?.getVideoTracks()[0];if(t){t.
 $('themeInfo').onclick=()=>$('infoDialog').showModal();$('closeInfo').onclick=()=>$('infoDialog').close();
 window.addEventListener('online',()=>{if(channel)status('اینترنت برگشت؛ وضعیت اتاق را بررسی می‌کنیم...');});
 window.addEventListener('beforeunload',()=>{if(channel)channel.untrack();if(pc)pc.close();if(localStream)localStream.getTracks().forEach(t=>t.stop());if(localObjectUrl)URL.revokeObjectURL(localObjectUrl);});
+
+
+/* Live movie-frame ambience behind the chat.
+   Works for local files and same-origin/CORS-enabled direct video URLs.
+   Cross-origin embeds and video hosts that block canvas access cannot expose frames. */
+const chatMovieCanvas = $('chatMovieCanvas');
+const chatMovieCtx = chatMovieCanvas?.getContext('2d');
+let chatFrameFailed = false, chatFrameTick = 0;
+function paintChatMovieFrame(){
+ if(!chatMovieCanvas || !chatMovieCtx) return;
+ if(movie.readyState >= 2 && movie.videoWidth && movie.videoHeight && !chatFrameFailed){
+  if(++chatFrameTick % 3 === 0){
+   try{
+    const w=chatMovieCanvas.width=640, h=chatMovieCanvas.height=360;
+    const scale=Math.max(w/movie.videoWidth,h/movie.videoHeight);
+    const sw=w/scale, sh=h/scale;
+    const sx=(movie.videoWidth-sw)/2, sy=(movie.videoHeight-sh)/2;
+    chatMovieCtx.clearRect(0,0,w,h);
+    chatMovieCtx.filter='blur(2px) saturate(1.15) brightness(.78)';
+    chatMovieCtx.drawImage(movie,sx,sy,sw,sh,0,0,w,h);
+    chatMovieCtx.filter='none';
+    const shade=chatMovieCtx.createLinearGradient(0,0,0,h);
+    shade.addColorStop(0,'rgba(4,5,9,.28)');
+    shade.addColorStop(.55,'rgba(4,5,9,.12)');
+    shade.addColorStop(1,'rgba(2,2,4,.72)');
+    chatMovieCtx.fillStyle=shade;chatMovieCtx.fillRect(0,0,w,h);
+    chatFrameFailed=false;
+   }catch(e){
+    chatFrameFailed=true;
+    console.info('Chat live movie backdrop unavailable for this source (CORS/iframe restriction).',e);
+    toast('این منبع اجازه نمایش فریم فیلم پشت چت را نمی‌دهد؛ برای این افکت لینک مستقیمِ سازگار یا فایل گوشی لازم است.');
+   }
+  }
+ }
+ requestAnimationFrame(paintChatMovieFrame);
+}
+requestAnimationFrame(paintChatMovieFrame);
