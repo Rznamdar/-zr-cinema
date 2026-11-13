@@ -61,3 +61,70 @@ body>*:not(.ambient){position:relative;z-index:1}
 .topbar{background:#03030372;backdrop-filter:blur(14px)}
 .room-card,.player-card,.call-card,.note-card,.chat-card{background:linear-gradient(145deg,#10100edb,#070707e8);backdrop-filter:blur(12px)}
 @media(max-width:760px){.ambient::before{filter:blur(25px) saturate(.68);opacity:.43}.topbar{backdrop-filter:blur(12px)}}
+
+
+/* Rave-like chat panel: blurred cinematic color wash behind floating bubbles */
+.player-card>.chat-card{
+ position:relative;
+ isolation:isolate;
+ overflow:hidden;
+ background:#090909;
+ border:1px solid #3a3020;
+ border-radius:16px;
+}
+.player-card>.chat-card::before{
+ content:"";
+ position:absolute;
+ inset:-35px;
+ z-index:-2;
+ background:
+  radial-gradient(ellipse at 12% 20%,#9a5145 0 10%,transparent 35%),
+  radial-gradient(ellipse at 82% 15%,#355c78 0 13%,transparent 36%),
+  radial-gradient(ellipse at 48% 60%,#92713d 0 12%,transparent 34%),
+  radial-gradient(ellipse at 90% 85%,#59416e 0 12%,transparent 34%),
+  radial-gradient(ellipse at 10% 88%,#356257 0 12%,transparent 34%),
+  linear-gradient(135deg,#17212a,#483528 48%,#1b1424);
+ filter:blur(25px) saturate(.8);
+ opacity:.72;
+ transform:scale(1.08);
+}
+.player-card>.chat-card::after{
+ content:"";
+ position:absolute;
+ inset:0;
+ z-index:-1;
+ background:linear-gradient(180deg,#050505a6,#05050580 45%,#030303d9);
+ pointer-events:none;
+}
+.player-card>.chat-card .chat-head,
+.player-card>.chat-card .messages,
+.player-card>.chat-card .message-form,
+.player-card>.chat-card .chat-foot{position:relative;z-index:1}
+.player-card>.chat-card .messages{
+ background:linear-gradient(180deg,#07070712,#03030325);
+ border-radius:12px;
+}
+.player-card>.chat-card .message{
+ box-shadow:0 4px 16px #0005;
+ backdrop-filter:blur(8px);
+}
+.player-card>.chat-card .message.mine{
+ background:#5a4426d9;
+ border-color:#a07a3e88;
+}
+.player-card>.chat-card .message.theirs{
+ background:#17191bdc;
+ border-color:#ffffff25;
+}
+.player-card>.chat-card .message-form{
+ border-top:1px solid #ffffff20;
+ padding-top:12px;
+}
+.player-card>.chat-card .message-form input{
+ background:#080808d9;
+ border-color:#ffffff2b;
+ backdrop-filter:blur(10px);
+}
+.player-card>.chat-card .send-btn{
+ box-shadow:0 3px 15px #c39b4a44;
+}
