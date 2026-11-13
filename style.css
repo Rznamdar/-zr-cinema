@@ -259,3 +259,36 @@ body>*:not(.ambient){position:relative;z-index:1}
 .player-card>.chat-card .message-form,
 .player-card>.chat-card .chat-foot{z-index:3!important}
 .player-card>.chat-card .messages{background:transparent!important}
+
+
+/* FINAL OVERRIDE: completely static matte chat background */
+.player-card>.chat-card,
+.player-card>.chat-card *{
+  animation:none!important;
+  transition:none!important;
+}
+.player-card>.chat-card{
+  background:#151515!important;
+  background-image:none!important;
+  backdrop-filter:blur(18px)!important;
+  -webkit-backdrop-filter:blur(18px)!important;
+}
+.player-card>.chat-card::before{
+  content:""!important;
+  position:absolute!important;
+  inset:0!important;
+  background:#242424!important;
+  background-image:none!important;
+  filter:blur(18px)!important;
+  opacity:.48!important;
+  transform:none!important;
+}
+.player-card>.chat-card::after{
+  content:""!important;
+  position:absolute!important;
+  inset:0!important;
+  background:rgba(0,0,0,.38)!important;
+  background-image:none!important;
+  transform:none!important;
+}
+.player-card>.chat-card #chatMovieCanvas{display:none!important;visibility:hidden!important}
