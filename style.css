@@ -76,7 +76,7 @@ body>*:not(.ambient){position:relative;z-index:1}
  content:"";
  position:absolute;
  inset:-35px;
- z-index:-2;
+ z-index:0;
  background:
   radial-gradient(ellipse at 12% 20%,#9a5145 0 10%,transparent 35%),
   radial-gradient(ellipse at 82% 15%,#355c78 0 13%,transparent 36%),
@@ -92,7 +92,7 @@ body>*:not(.ambient){position:relative;z-index:1}
  content:"";
  position:absolute;
  inset:0;
- z-index:-1;
+ z-index:0;
  background:linear-gradient(180deg,#050505a6,#05050580 45%,#030303d9);
  pointer-events:none;
 }
