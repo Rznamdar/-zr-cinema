@@ -14,3 +14,25 @@
 .player-card>.source-tabs{margin-top:12px}
 .player-card>.source-panel{padding-top:9px}
 @media(max-width:760px){.player-card{padding:10px}.player-card>.chat-card{margin-top:8px;padding:12px}}
+
+
+/* Cinema refinement: darker atmosphere, larger screen, mobile chat ergonomics */
+:root{--bg:#030303;--line:#242018;--gold:#c7a35f;--gold2:#e6cc91;--muted:#817969;--text:#eee9df}
+body{background:#030303}
+.ambient{background:radial-gradient(ellipse at 50% -18%,#49371916,transparent 54%),linear-gradient(180deg,#050505 0%,#020202 100%)}
+.room-card,.player-card,.call-card,.note-card,.chat-card{background:linear-gradient(145deg,#10100e,#080808);border-color:#252117}
+.cinema-grid{grid-template-columns:minmax(0,1.9fr) minmax(260px,.7fr);gap:16px}
+.screen-wrap{aspect-ratio:16/10;min-height:300px;border-color:#4b3b20;box-shadow:0 12px 36px #000b,0 0 0 1px #c39b4a12}
+.player-card{padding:16px}
+.messages{height:190px}
+.message-form input{font-size:16px}
+@media(max-width:760px){
+ .cinema-grid{grid-template-columns:minmax(0,1fr);gap:12px}
+ .screen-wrap{aspect-ratio:16/10;min-height:280px}
+ .player-card{padding:10px}
+ .player-card>.chat-card{padding:12px}
+ .message-form input{font-size:16px;line-height:1.4;min-height:44px}
+ .message-form{padding-bottom:env(safe-area-inset-bottom)}
+ .messages{height:165px}
+}
+@media(max-width:390px){.screen-wrap{min-height:240px}}
