@@ -18,12 +18,33 @@ function looksLikeDirectVideo(raw){try{return /\.(mp4|webm|ogg|ogv|m3u8|mpd)$/i.
 function setEmbedSource(src,name='ویدئو از پلیر خارجی'){hidePlayers();movie.removeAttribute('src');movie.load();embedPlayer.src=src;embedPlayer.classList.add('visible');showMovie();$('movieStatus').textContent=name;}
 function broadcast(event,payload){if(channel)channel.send({type:'broadcast',event,payload:{...payload,from:clientId}}).catch(e=>console.warn('broadcast',e));}
 function loadMovieUrl(raw,notify=true){const url=raw.trim();if(!/^https?:\/\//i.test(url)){toast('لینک معتبر وارد کن');return;}const a=aparatEmbed(url);if(a)setEmbedSource(a,'آپارات');else if(looksLikeDirectVideo(url))setVideoSource(url,'فیلم از لینک مستقیم');else setEmbedSource(url,'پلیر خارجی؛ نمایش به اجازه سایت منبع بستگی دارد');if(notify)broadcast('movie',{url});}
+
+/* More reliable remote playback feedback and metadata-safe synchronization */
+function syncRemotePlayback(action,p){
+  if(!movie.getAttribute('src'))return;
+  const apply=()=>{
+    suppressSync=true;
+    if(Number.isFinite(p.time))movie.currentTime=p.time;
+    const done=()=>{suppressSync=false;};
+    if(action==='play'){
+      const result=movie.play();
+      if(result&&typeof result.catch==='function')result.catch(()=>toast('برای شروع فیلم، یک‌بار روی دکمه پخش بزنید.'));
+    }else movie.pause();
+    setTimeout(done,900);
+  };
+  if(movie.readyState>=1)apply();
+  else movie.addEventListener('loadedmetadata',apply,{once:true});
+}
+movie.addEventListener('error',()=>{
+  if(movie.getAttribute('src'))toast('این لینک روی دستگاه شما قابل پخش نیست؛ لینک مستقیم MP4 سازگار را امتحان کنید.');
+});
+
 function addMessage(text,mine,name=''){ $('chatEmpty').classList.add('hidden');const wrap=document.createElement('div');wrap.className='message '+(mine?'mine':'theirs');const sender=document.createElement('span');sender.className='sender';sender.textContent=name||(mine?'شما':'طرف مقابل');const body=document.createElement('div');body.textContent=text;const time=document.createElement('time');time.textContent=new Date().toLocaleTimeString('fa-IR',{hour:'2-digit',minute:'2-digit'});wrap.append(sender,body,time);$('messages').appendChild(wrap);$('messages').scrollTop=$('messages').scrollHeight;}
 function handleBroadcast(event,p){if(!p||p.from===clientId)return;
  if(event==='chat')addMessage(p.text,false);
  if(event==='movie'&&p.url){$('movieUrl').value=p.url;loadMovieUrl(p.url,false);toast('فیلم طرف مقابل بارگذاری شد');}
- if(event==='play'&&movie.src){suppressSync=true;movie.currentTime=p.time||0;movie.play().catch(()=>{});setTimeout(()=>suppressSync=false,800);}
- if(event==='pause'&&movie.src){suppressSync=true;movie.pause();if(Number.isFinite(p.time))movie.currentTime=p.time;setTimeout(()=>suppressSync=false,500);}
+ if(event==='play')syncRemotePlayback('play',p);
+ if(event==='pause')syncRemotePlayback('pause',p);
  if(event==='seek'&&movie.src){suppressSync=true;movie.currentTime=p.time||0;setTimeout(()=>suppressSync=false,400);}
  if(event==='signal'&&p.to===clientId)handleSignal(p);
 }
