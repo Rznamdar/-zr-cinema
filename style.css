@@ -216,3 +216,17 @@ body>*:not(.ambient){position:relative;z-index:1}
 .player-card>.chat-card .messages,
 .player-card>.chat-card .message-form,
 .player-card>.chat-card .chat-foot{position:relative;z-index:1}
+
+
+/* Ensure the live movie canvas is visible above overlays but below chat controls */
+.player-card>.chat-card::before{z-index:0!important}
+.player-card>.chat-card::after{z-index:1!important}
+.player-card>.chat-card #chatMovieCanvas{z-index:2!important}
+.player-card>.chat-card .chat-head,
+.player-card>.chat-card .messages,
+.player-card>.chat-card .message-form,
+.player-card>.chat-card .chat-foot{z-index:3!important}
+.player-card>.chat-card::after{
+ background:linear-gradient(180deg,#05050545,#05050528 48%,#0303039c)!important;
+}
+.player-card>.chat-card #chatMovieCanvas{opacity:.94!important}
